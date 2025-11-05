@@ -1,5 +1,5 @@
 [build]
-  publish = "deploy"
+  publish = "."
   command = "echo 'Static site - no build needed'"
   ignore = "git diff --quiet HEAD^ HEAD ."
 
