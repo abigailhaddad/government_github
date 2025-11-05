@@ -1,0 +1,143 @@
+name: Fetch 2210 Jobs
+
+on:
+  schedule:
+    # Run daily at 6 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+# Needed for pushing changes back to repo and creating PRs
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  fetch-jobs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+        ref: main
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Configure git
+      run: |
+        git config --global user.name "GitHub Actions Bot"
+        git config --global user.email "actions@github.com"
+
+    - name: Create or switch to data-updates branch
+      run: |
+        git fetch origin
+        git checkout main
+        git pull origin main
+        git checkout -B data-updates
+        echo "Created fresh data-updates branch from main"
+        
+    - name: Fetch 2210 jobs
+      env:
+        USAJOBS_API_TOKEN: ${{ secrets.USAJOBS_API_TOKEN }}
+      run: |
+        python fetch_2210_jobs.py
+        
+    - name: Classify IT specialist jobs
+      run: |
+        python classify_it_specialist.py
+        
+    - name: Run data integrity tests
+      id: data_tests
+      run: |
+        python test_data_integrity.py
+        
+    - name: Commit and push to data-updates branch
+      run: |
+        if [ -n "$(git status --porcelain)" ]; then
+          git add .
+          git commit -m "Daily 2210 jobs update - $(date +'%Y-%m-%d')"
+          git push -f origin data-updates
+          echo "CHANGES_MADE=true" >> $GITHUB_ENV
+        else
+          echo "No changes to commit"
+          echo "CHANGES_MADE=false" >> $GITHUB_ENV
+        fi
+
+    - name: Create Pull Request
+      if: env.CHANGES_MADE == 'true'
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        PR_EXISTS=$(gh pr list --base main --head data-updates --state open --json number --jq length)
+        
+        if [ "$PR_EXISTS" -eq "0" ]; then
+          echo "Creating new PR..."
+          gh pr create \
+            --base main \
+            --head data-updates \
+            --title "Daily 2210 jobs update - $(date +'%Y-%m-%d')" \
+            --body "Automated daily update of 2210 jobs data from USAJobs API.
+            
+            ## Changes
+            - Updated job data (filtered to jobs posted since October 1, 2024)
+            - Refreshed IT specialist classification
+            - Updated metrics JSON
+            
+            ## Tests Status
+            - Data integrity tests: ✅ PASSED
+            - No job loss verification: ✅ PASSED
+            - Date progression check: ✅ PASSED
+            
+            This PR is safe to auto-merge."
+        else
+          echo "PR already exists, skipping creation"
+        fi
+
+    - name: Auto-merge PR if tests pass
+      if: env.CHANGES_MADE == 'true' && steps.data_tests.outcome == 'success'
+      run: |
+        sleep 10
+        PR_NUMBER=$(gh pr list --base main --head data-updates --json number --jq '.[0].number')
+        
+        if [ -n "$PR_NUMBER" ]; then
+          echo "Auto-merging PR #$PR_NUMBER"
+          gh pr merge $PR_NUMBER --merge --auto
+        fi
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create issue on failure
+      if: failure() || (env.CHANGES_MADE == 'true' && steps.data_tests.outcome == 'failure')
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const issue = {
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: `2210 Jobs Update Failed - ${new Date().toISOString().split('T')[0]}`,
+            body: `The 2210 jobs update workflow had issues.
+            
+            ${context.job.status === 'failure' ? 'The workflow failed to complete.' : 'Data integrity tests failed.'}
+            
+            Test Results:
+            - Data Integrity Tests: ${{ steps.data_tests.outcome }}
+            
+            [View the workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+            
+            **CRITICAL**: If this is a data integrity failure, no jobs should be lost and dates should not go backwards!`,
+            labels: ['bug', 'data-integrity', 'automated']
+          };
+          await github.rest.issues.create(issue);

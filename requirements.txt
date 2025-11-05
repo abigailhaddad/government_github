@@ -1,0 +1,5 @@
+# Simple 2210 jobs fetcher - minimal dependencies
+requests==2.32.4
+pandas==2.3.0
+pyarrow==21.0.0
+python-dotenv==1.1.0

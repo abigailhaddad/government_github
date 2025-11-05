@@ -1,0 +1,9 @@
+# Python
+__pycache__/
+venv/
+
+# Environment variables
+.env
+
+# Data baseline (generated locally)
+data_baseline.json
