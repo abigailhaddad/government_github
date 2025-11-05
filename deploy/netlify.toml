@@ -1,0 +1,14 @@
+[build]
+  publish = "deploy"
+  command = "echo 'Static site - no build needed'"
+  ignore = "git diff --quiet HEAD^ HEAD ."
+
+[build.environment]
+  NODE_VERSION = "18"
+  # Explicitly disable Python
+  PYTHON_VERSION = ""
+
+[[headers]]
+  for = "/data/*"
+  [headers.values]
+    Cache-Control = "public, max-age=300"
