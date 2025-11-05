@@ -59,9 +59,11 @@ jobs:
       run: |
         python classify_it_specialist.py
         
-    - name: Copy data to deploy folder
+    - name: Update deploy folder with new data
       run: |
+        # Create data folder in deploy if it doesn't exist
         mkdir -p deploy/data
+        # Copy generated metrics to deploy folder
         cp data/2210_metrics.json deploy/data/ || echo "No metrics file generated"
         
     - name: Run data integrity tests

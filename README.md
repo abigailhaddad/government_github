@@ -23,16 +23,21 @@ The tracker is deployed at: [your-netlify-url-here]
 2. GitHub Action runs daily at 6 AM UTC
 3. Netlify auto-deploys from `main` branch
 
-## 📁 Key Files
+## 📁 Repository Structure
 
-- `index.html` - Main tracker webpage
+**Root (GitHub Actions):**
 - `fetch_2210_jobs.py` - Fetches and processes USAJobs data
-- `classify_it_specialist.py` - Classifies job titles
+- `classify_it_specialist.py` - Classifies job titles  
 - `test_data_integrity.py` - Validates data quality
-- `.github/workflows/fetch-2210-jobs.yml` - Daily automation
+- `.github/workflows/` - Daily automation
+
+**Deploy folder (Netlify):**
+- `deploy/index.html` - Main tracker webpage
+- `deploy/data/` - Generated JSON data
+- `deploy/netlify.toml` - Deployment config
 
 ## 📈 Data
 
-- Filters to jobs posted since October 1, 2024
-- Generates `data/2210_metrics.json` with current stats
+- Filters to jobs posted since October 1, 2025
+- Generates `deploy/data/2210_metrics.json` with current stats
 - Includes examples of other non-compliant titles
