@@ -60,9 +60,9 @@ def flatten_json(obj, prefix='', sep='_'):
     return flattened
 
 def filter_jobs_since_october(jobs):
-    """Filter jobs to only include those posted since October 1, 2024"""
+    """Filter jobs to only include those posted since October 1, 2025"""
     from datetime import datetime
-    cutoff_date = datetime(2024, 10, 1)
+    cutoff_date = datetime(2025, 10, 1)
     
     filtered_jobs = []
     for job in jobs:
@@ -195,7 +195,7 @@ def generate_metrics_json(df, output_dir="data"):
             'date_posted': most_recent_date,
             'link': most_recent_link
         },
-        'data_filter': 'Jobs posted since October 1, 2024',
+        'data_filter': 'Jobs posted since October 1, 2025',
         'other_bad_titles': [
             'IT PROGRAM MANAGER',
             'IT PROJECT MANAGER', 

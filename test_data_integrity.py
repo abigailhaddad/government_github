@@ -79,6 +79,16 @@ def test_no_job_loss():
         create_initial_baseline(latest_file)
         return True
     
+    # Check if data filter has changed - if so, reset baseline
+    current_filter = "Jobs posted since October 1, 2025"
+    baseline_filter = baseline.get('data_filter', 'Unknown')
+    
+    if baseline_filter != current_filter:
+        print(f"{Colors.YELLOW}⚠️  WARN{Colors.RESET} Data filter changed: '{baseline_filter}' → '{current_filter}'")
+        print(f"{Colors.YELLOW}⚠️  WARN{Colors.RESET} Resetting baseline due to filter change")
+        create_initial_baseline(latest_file)
+        return True
+    
     try:
         df = pd.read_parquet(latest_file)
         
@@ -190,7 +200,7 @@ def test_october_filter():
     
     try:
         df = pd.read_parquet(latest_file)
-        cutoff_date = pd.to_datetime('2024-10-01')
+        cutoff_date = pd.to_datetime('2025-10-01')
         
         # Check date columns
         date_cols = ['MatchedObjectDescriptor_PositionStartDate', 'MatchedObjectDescriptor_PublicationStartDate']
@@ -209,10 +219,10 @@ def test_october_filter():
                     violations += before_cutoff
         
         if violations > 0:
-            print(f"{Colors.RED}❌ FAIL{Colors.RESET} {violations} jobs found before October 1, 2024")
+            print(f"{Colors.RED}❌ FAIL{Colors.RESET} {violations} jobs found before October 1, 2025")
             return False
         elif total_with_dates > 0:
-            print(f"{Colors.GREEN}✅ PASS{Colors.RESET} All {total_with_dates} dated jobs are from October 1, 2024 or later")
+            print(f"{Colors.GREEN}✅ PASS{Colors.RESET} All {total_with_dates} dated jobs are from October 1, 2025 or later")
         else:
             print(f"{Colors.YELLOW}⚠️  WARN{Colors.RESET} No valid dates found to check")
         
