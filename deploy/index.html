@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Days Since Last USAJobs IT Specialist Posting</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 60px auto;
+            background: white;
+            padding: 60px 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        h1 {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .counter {
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .stats-box {
+            text-align: center;
+            margin: 40px 0;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .stat-number {
+            font-size: 64px;
+            font-weight: 700;
+            color: #c53030;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            font-size: 0.95em;
+            color: #666;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .days-number {
+            font-size: 120px;
+            font-weight: 700;
+            color: #2c5282;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+        
+        .days-label {
+            font-size: 1.2em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .description {
+            margin: 40px 0;
+            font-size: 1.05em;
+            color: #555;
+        }
+        
+        .description p {
+            margin-bottom: 16px;
+        }
+        
+        .key-point {
+            color: #2c5282;
+            font-weight: 600;
+        }
+        
+        .disclaimer {
+            background: #f8f9fa;
+            padding: 20px;
+            border-left: 4px solid #e2a610;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        
+        .link-section {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .last-posting-link {
+            display: inline-block;
+            color: #2c5282;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 12px 24px;
+            border: 2px solid #2c5282;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .last-posting-link:hover {
+            background: #2c5282;
+            color: white;
+        }
+        
+        .updated {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.85em;
+            color: #999;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .error {
+            text-align: center;
+            color: #c53030;
+            background: #fed7d7;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Days Since Last "IT Specialist" Posting</h1>
+        
+        <div id="loading" class="loading">
+            Loading data...
+        </div>
+        
+        <div id="content" style="display: none;">
+            <div class="counter">
+                <a id="counter-link" href="#" style="text-decoration: none; color: inherit;">
+                    <div id="days-number" class="days-number">-</div>
+                    <div class="days-label">Days</div>
+                </a>
+            </div>
+            
+            <div class="stats-box">
+                <div id="percentage" class="stat-number">-%</div>
+                <div class="stat-label">of GS-2210 postings since Oct 1, 2025 still use "IT Specialist"</div>
+            </div>
+            
+            <div class="description">
+                <p>
+                    On <span class="key-point">September 9, 2024</span>, the Office of Personnel Management issued guidance requiring 
+                    federal agencies to use <span class="key-point">plain language job titles</span> in announcements—titles that are 
+                    "descriptive, organizational, or functional" rather than "generic or jargon-laden." 
+                    The memo <span class="key-point">explicitly cited "IT Specialist" as the example of what NOT to do</span>, requiring 
+                    agencies to use titles like <strong>"Cloud Engineer," "Data Scientist," or "Cybersecurity Analyst"</strong> instead.
+                </p>
+                <p>
+                    This counter tracks compliance with the Merit Hiring Plan by monitoring days since 
+                    the last <span class="key-point">"IT Specialist" posting</span> on USAJobs. We use "IT Specialist" as the benchmark 
+                    because it was <span class="key-point">explicitly called out by OPM</span> and is easy to identify automatically.
+                </p>
+                
+                <div class="disclaimer">
+                    <p>
+                        <strong>Note:</strong> Just because a job title isn't "IT Specialist" doesn't mean it 
+                        meets the plain language standard. Other <strong>bad GS-2210 titles</strong> we've observed include 
+                        <span id="other-bad-titles">"IT Program Manager," "Computer Systems Administrator (CSA)," and "IT System Administrator"</span>
+                        — but we're setting the bar here because it's <span class="key-point">unambiguous and measurable</span>.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="link-section">
+                <a id="last-posting-link" href="#" class="last-posting-link">
+                    View Last Posting →
+                </a>
+            </div>
+            
+            <div class="updated">
+                Last updated: <span id="last-updated">-</span>
+            </div>
+        </div>
+        
+        <div id="error" class="error" style="display: none;">
+            Unable to load data. Please try again later.
+        </div>
+    </div>
+
+    <script>
+        async function loadData() {
+            try {
+                const response = await fetch('data/2210_metrics.json');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                
+                const data = await response.json();
+                
+                // Calculate days since last IT specialist posting
+                const lastPostingDate = new Date(data.most_recent_it_specialist.date_posted);
+                const now = new Date();
+                const diffTime = Math.abs(now - lastPostingDate);
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                
+                // Update UI
+                document.getElementById('days-number').textContent = diffDays;
+                document.getElementById('percentage').textContent = data.it_specialist_percentage + '%';
+                
+                // Update other bad titles if available
+                if (data.other_bad_titles && data.other_bad_titles.length > 0) {
+                    const titlesList = data.other_bad_titles.map(title => `"${title}"`).join(', ');
+                    document.getElementById('other-bad-titles').textContent = titlesList;
+                }
+                
+                // Set links
+                const link = data.most_recent_it_specialist.link;
+                if (link && link !== '#') {
+                    document.getElementById('counter-link').href = link;
+                    document.getElementById('last-posting-link').href = link;
+                    document.getElementById('last-posting-link').style.display = 'inline-block';
+                } else {
+                    // Hide the link if we don't have a valid URL
+                    document.getElementById('last-posting-link').style.display = 'none';
+                }
+                
+                // Format last updated date
+                const updatedDate = new Date(data.generated_at);
+                document.getElementById('last-updated').textContent = updatedDate.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                // Show content, hide loading
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+        
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', loadData);
+        
+        // Refresh data every 5 minutes
+        setInterval(loadData, 5 * 60 * 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+[build]
+  publish = "deploy"
+  command = "echo 'Static site deployed from deploy folder'"
+
+[[headers]]
+  for = "/data/*"
+  [headers.values]
+    Cache-Control = "public, max-age=300"
