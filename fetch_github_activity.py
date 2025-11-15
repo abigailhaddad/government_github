@@ -57,15 +57,24 @@ FEDERAL_AGENCIES = {
 
 def get_github_headers():
     """Get GitHub API headers with authorization"""
-    token = os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN")
+    gh_token = os.getenv("GH_TOKEN")
+    github_token = os.getenv("GITHUB_TOKEN")
     
     headers = {
         "Accept": "application/vnd.github.v3+json",
         "User-Agent": "Federal-Agency-Tracker"
     }
     
-    if token:
-        headers["Authorization"] = f"token {token}"
+    if gh_token:
+        headers["Authorization"] = f"token {gh_token}"
+        print("🔑 Using custom GH_TOKEN for enhanced rate limits")
+        return headers
+    elif github_token:
+        headers["Authorization"] = f"token {github_token}"
+        print("🔑 Using automatic GITHUB_TOKEN (may have rate limits)")
+        return headers
+    else:
+        print("⚠️  No token found - using anonymous requests (60/hour limit)")
     
     return headers
 
@@ -78,11 +87,16 @@ def make_github_request(url, headers, params=None, max_retries=3):
             # Check rate limit headers
             remaining = int(response.headers.get('X-RateLimit-Remaining', 1))
             reset_time = int(response.headers.get('X-RateLimit-Reset', 0))
+            limit = int(response.headers.get('X-RateLimit-Limit', 0))
+            
+            # Log rate limit status occasionally
+            if remaining % 100 == 0 and remaining > 0:
+                print(f"   🔢 Rate limit: {remaining}/{limit} remaining")
             
             if response.status_code == 403 and remaining == 0:
                 # Rate limit exceeded
                 wait_time = max(reset_time - int(time.time()) + 60, 60)  # Add 1 min buffer
-                print(f"   Rate limit exceeded. Waiting {wait_time} seconds...")
+                print(f"   ⏳ Rate limit exceeded. Waiting {wait_time} seconds...")
                 time.sleep(wait_time)
                 continue
             
@@ -422,9 +436,17 @@ def main():
     failed_agencies = []
     
     for i, (agency_name, org_name) in enumerate(FEDERAL_AGENCIES.items(), 1):
+        start_time = time.time()
         print(f"\n📊 [{i}/{len(FEDERAL_AGENCIES)}] Fetching activity for {agency_name} ({org_name})...")
         activity = get_org_activity(org_name)
         activities[org_name] = activity
+        
+        # Show completion stats
+        elapsed = time.time() - start_time
+        repos = activity.get('repos', 0)
+        commits = activity.get('commits', 0)
+        prs = activity.get('prs', 0)
+        print(f"   ✅ Completed in {elapsed:.1f}s - {repos} repos, {commits} commits, {prs} PRs")
         
         # Track agencies that failed to fetch (API errors, not just missing orgs)
         if not activity.get('exists') and 'exists' not in activity:
