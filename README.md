@@ -1,43 +1,55 @@
-# USAJobs IT Specialist Tracker
+# Federal Agency GitHub Activity Tracker
 
-A real-time tracker monitoring compliance with OPM's plain language job title directive.
+A visualization tool that tracks public GitHub activity for 32 federal agencies, monitoring commits and pull requests over the last 30 days.
 
 ## 🎯 What it tracks
 
-Days since the last "IT Specialist" posting on USAJobs, plus the percentage of GS-2210 jobs still using this generic title that OPM explicitly said not to use.
+- **Commits to default branches** across federal agency repositories
+- **Pull request creation** activity 
+- **Active repositories** with recent development
+- **Agency-level activity heatmaps** showing daily development patterns
 
 ## 🚀 Live Site
 
-The tracker is deployed at: [your-netlify-url-here]
+[View the Federal GitHub Activity Tracker](https://federal-github-activity.netlify.app)
 
 ## 📊 How it works
 
-1. **Daily data collection** - GitHub Action fetches current 2210 jobs from USAJobs API
-2. **Smart classification** - Identifies "IT Specialist" jobs using pattern matching
-3. **Data integrity tests** - Ensures no job loss and validates date progression  
-4. **Real-time display** - Website shows days since last posting and compliance percentage
+1. **Daily data collection** - GitHub Action fetches activity from 32 federal agency organizations
+2. **Activity aggregation** - Processes commits, PRs, and repository metrics
+3. **Data validation** - Ensures data quality and structure integrity
+4. **Interactive visualization** - GitHub-style heatmap with sortable metrics
 
-## 🛠 Setup
+## 🛠 Technology Stack
 
-1. Set `USAJOBS_API_TOKEN` secret in GitHub repo settings
-2. GitHub Action runs daily at 6 AM UTC
-3. Netlify auto-deploys from `main` branch
+- **Frontend**: Vanilla HTML/CSS/JavaScript with responsive design
+- **Backend**: Python script using GitHub API v4
+- **Deployment**: Netlify static site hosting
+- **Automation**: GitHub Actions for daily updates
+- **Data Validation**: Automated quality checks before deployment
 
 ## 📁 Repository Structure
 
 **Root (GitHub Actions):**
-- `fetch_2210_jobs.py` - Fetches and processes USAJobs data
-- `classify_it_specialist.py` - Classifies job titles  
-- `test_data_integrity.py` - Validates data quality
-- `.github/workflows/` - Daily automation
+- `fetch_github_activity.py` - Fetches and processes GitHub data
+- `.github/workflows/` - Daily automation and validation
+- `requirements.txt` - Python dependencies
 
 **Deploy folder (Netlify):**
 - `deploy/index.html` - Main tracker webpage
-- `deploy/data/` - Generated JSON data
-- `deploy/netlify.toml` - Deployment config
+- `deploy/data/github_activity.json` - Generated activity data
+- `deploy/netlify.toml` - Deployment configuration
 
-## 📈 Data
+## 📈 Data Coverage
 
-- Filters to jobs posted since October 1, 2025
-- Generates `deploy/data/2210_metrics.json` with current stats
-- Includes examples of other non-compliant titles
+Monitors 32 federal agencies including USDS, 18F, NASA, Department of Defense, Department of Veterans Affairs, HHS, DOE, and more.
+
+**Note**: Data shows only **public** repositories and measures creation events (commits to default branches, PR creation), not merges or completions. Agencies may have additional private development activity.
+
+## 🔗 Related Policy
+
+This tracker supports transparency around the [Federal Source Code Policy](https://digital.gov/resources/requirements-for-achieving-efficiency-transparency-and-innovation-through-reusable-and-open-source-software/) pilot program requiring agencies to release at least 20% of new custom-developed code as open source software.
+
+---
+
+Created by [Abigail Haddad](https://abigailhaddad.netlify.app/) | [Blog](https://presentofcoding.substack.com/)

@@ -1,0 +1,79 @@
+name: Fetch Federal GitHub Activity
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  fetch-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Fetch GitHub activity data
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        python fetch_github_activity.py
+        
+    - name: Validate generated data
+      run: |
+        # Check if data file exists
+        if [ ! -f "deploy/data/github_activity.json" ]; then
+          echo "❌ Error: Data file not generated"
+          exit 1
+        fi
+        
+        # Validate JSON structure
+        python -c "
+        import json, sys
+        try:
+            with open('deploy/data/github_activity.json') as f:
+                data = json.load(f)
+            
+            # Check required top-level keys
+            required_keys = ['agencies', 'generated_at', 'total_agencies', 'active_agencies']
+            for key in required_keys:
+                if key not in data:
+                    print(f'❌ Missing required key: {key}')
+                    sys.exit(1)
+            
+            # Check we have agencies data
+            if len(data['agencies']) < 20:
+                print(f'❌ Too few agencies: {len(data[\"agencies\"])} (expected 20+)')
+                sys.exit(1)
+                
+            # Log activity status (but don't fail on zero activity)
+            print(f'📊 Activity summary: {data[\"active_agencies\"]} agencies active, {data.get(\"total_commits\", 0)} commits, {data.get(\"total_prs\", 0)} PRs')
+                
+            print(f'✅ Data validation passed: {len(data[\"agencies\"])} agencies, {data[\"active_agencies\"]} active')
+            
+        except json.JSONDecodeError as e:
+            print(f'❌ Invalid JSON: {e}')
+            sys.exit(1)
+        except Exception as e:
+            print(f'❌ Validation error: {e}')
+            sys.exit(1)
+        "
+        
+    - name: Commit and push updated data
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add deploy/data/
+        git diff --staged --quiet || git commit -m "Update federal agency GitHub activity data 🤖 - $(date)"
+        git push

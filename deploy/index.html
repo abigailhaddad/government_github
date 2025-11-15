@@ -3,279 +3,702 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Days Since Last USAJobs IT Specialist Posting</title>
+    <title>Federal Agency Github Activity Tracker</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-            background: #f5f5f5;
-            color: #333;
-            line-height: 1.6;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 40px 20px;
         }
-        
+
         .container {
-            max-width: 700px;
-            margin: 60px auto;
-            background: white;
-            padding: 60px 40px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            max-width: 95vw;
+            margin: 0 auto;
+            padding: 0 10px;
         }
-        
+
         h1 {
-            font-size: 1.4em;
+            font-size: 32px;
             font-weight: 600;
-            color: #666;
-            text-align: center;
-            margin-bottom: 30px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            margin-bottom: 8px;
+            color: #ffffff;
         }
-        
-        .counter {
-            text-align: center;
-            margin: 40px 0;
+
+        .subtitle {
+            color: #8b949e;
+            margin-bottom: 32px;
+            line-height: 1.5;
         }
-        
-        .stats-box {
-            text-align: center;
-            margin: 40px 0;
-            padding: 30px;
-            background: #f8f9fa;
+
+        .agency-row {
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .agency-name {
+            width: 120px;
+            font-size: 14px;
+            color: #58a6ff;
+            text-align: right;
+            flex-shrink: 0;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .agency-name:hover {
+            text-decoration: underline;
+        }
+
+        .heatmap {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+            max-width: 900px;
+        }
+
+        .week {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .day {
+            width: 12px;
+            height: 12px;
+            background: #161b22;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .day:hover {
+            outline: 1px solid #8b949e;
+        }
+
+        .day.level-0 { background: #161b22; }
+        .day.level-1 { background: #0e4429; }
+        .day.level-2 { background: #006d32; }
+        .day.level-3 { background: #26a641; }
+        .day.level-4 { background: #39d353; }
+
+        .stats {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-size: 12px;
+            color: #8b949e;
+        }
+
+        .stat-badge {
+            background: #21262d;
+            padding: 4px 8px;
             border-radius: 6px;
         }
-        
-        .stat-number {
-            font-size: 64px;
-            font-weight: 700;
-            color: #c53030;
-            line-height: 1;
-            margin-bottom: 10px;
+
+        .legend {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #21262d;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #8b949e;
         }
-        
-        .stat-label {
-            font-size: 0.95em;
-            color: #666;
+
+        .legend-scale {
+            display: flex;
+            gap: 3px;
+            margin-left: 8px;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: #1c2128;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 12px;
+            pointer-events: none;
+            display: none;
+            z-index: 1000;
             max-width: 400px;
-            margin: 0 auto;
+            line-height: 1.4;
         }
         
-        .days-number {
-            font-size: 120px;
-            font-weight: 700;
-            color: #2c5282;
-            line-height: 1;
-            margin-bottom: 10px;
-        }
-        
-        .days-label {
-            font-size: 1.2em;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .description {
-            margin: 40px 0;
-            font-size: 1.05em;
-            color: #555;
-        }
-        
-        .description p {
-            margin-bottom: 16px;
-        }
-        
-        .key-point {
-            color: #2c5282;
-            font-weight: 600;
-        }
-        
-        .disclaimer {
-            background: #f8f9fa;
-            padding: 20px;
-            border-left: 4px solid #e2a610;
-            border-radius: 4px;
-            margin: 20px 0;
-        }
-        
-        .link-section {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 1px solid #e0e0e0;
-        }
-        
-        .last-posting-link {
-            display: inline-block;
-            color: #2c5282;
+        .tooltip a {
+            color: #58a6ff;
             text-decoration: none;
-            font-weight: 600;
-            padding: 12px 24px;
-            border: 2px solid #2c5282;
-            border-radius: 4px;
-            transition: all 0.2s;
         }
         
-        .last-posting-link:hover {
-            background: #2c5282;
-            color: white;
+        .tooltip a:hover {
+            text-decoration: underline;
         }
-        
-        .updated {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 0.85em;
-            color: #999;
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
         }
-        
+
+        .modal-content {
+            background: #1c2128;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: #c9d1d9;
+        }
+
+        .close {
+            color: #8b949e;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #c9d1d9;
+        }
+
+        .day.clickable {
+            cursor: pointer;
+        }
+
+        .day.clickable:hover {
+            outline: 2px solid #58a6ff;
+        }
+
         .loading {
             text-align: center;
-            color: #666;
-            font-style: italic;
+            padding: 50px;
+            color: #8b949e;
+        }
+
+        /* Table Styles */
+        table {
+            border-collapse: collapse;
+            border: 1px solid #21262d;
+            border-radius: 6px;
+            overflow: hidden;
+            width: 100%;
+            table-layout: auto;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #21262d;
+        }
+
+        th {
+            background: #161b22;
+            font-weight: 600;
+            color: #f0f6fc;
+            position: sticky;
+            top: 0;
+            user-select: none;
+        }
+
+        th.sortable {
+            cursor: pointer;
+            transition: background-color 0.1s;
+        }
+
+        th.sortable:hover {
+            background: #21262d;
+        }
+
+        th.sortable::after {
+            content: ' ↕';
+            color: #656d76;
+            font-size: 12px;
+        }
+
+        tr:hover {
+            background: #0d1117;
+        }
+
+        .agency-name-cell {
+            width: 150px;
+        }
+
+        .activity-cell {
+            width: 120px;
+            text-align: center;
+        }
+
+        .repos-cell {
+            width: 100px;
+            text-align: center;
+        }
+
+        .last-activity-cell {
+            width: 120px;
+            text-align: center;
+            font-size: 12px;
+            color: #8b949e;
+        }
+
+        .heatmap-cell {
+            width: auto;
+            min-width: 400px;
         }
         
-        .error {
-            text-align: center;
-            color: #c53030;
-            background: #fed7d7;
-            padding: 20px;
-            border-radius: 4px;
-            margin: 20px 0;
+        @media (max-width: 1400px) {
+            .heatmap-cell {
+                min-width: 350px;
+            }
+            .heatmap {
+                max-width: 350px;
+            }
+        }
+        
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 98vw;
+            }
+            .heatmap-cell {
+                min-width: 300px;
+            }
+            .heatmap {
+                max-width: 300px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .agency-name-cell {
+                width: 120px;
+            }
+            .heatmap-cell {
+                min-width: 250px;
+            }
+            .heatmap {
+                max-width: 250px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Days Since Last "IT Specialist" Posting</h1>
+        <h1>Federal Agency Github Activity</h1>
+        <p class="subtitle">
+            Tracking public GitHub <strong>commits to default branches and pull request creation</strong> for 32 federal agencies over the last 30 days. 
+            Each square represents one day. Greener squares indicate more development activity in public repositories.<br>
+            Data shows only <em>public</em> repositories and measures creation events, not merges or completions. Agencies may have additional private development activity.<br>
+            <a href="https://digital.gov/resources/requirements-for-achieving-efficiency-transparency-and-innovation-through-reusable-and-open-source-software/" target="_blank" style="color: #58a6ff;">The Federal Source Code Policy</a> pilot program requires agencies to release at least 20% of new custom-developed code each year as open source software.
+        </p>
+
+        <div id="summary-stats" class="loading" style="margin-bottom: 30px;"></div>
         
-        <div id="loading" class="loading">
-            Loading data...
+        <div id="agencies" class="loading">Loading federal agency data...</div>
+        
+        <div id="search-container" style="display: none; margin-bottom: 15px;">
+            <input type="text" id="agency-search" placeholder="Search agencies..." 
+                   style="padding: 8px 12px; border: 1px solid #21262d; background: #0d1117; color: #c9d1d9; border-radius: 6px; font-size: 14px; width: 300px;">
         </div>
         
-        <div id="content" style="display: none;">
-            <div class="counter">
-                <a id="counter-link" href="#" style="text-decoration: none; color: inherit;">
-                    <div id="days-number" class="days-number">-</div>
-                    <div class="days-label">Days</div>
-                </a>
+        <table id="agencies-table" style="display: none; width: 100%; margin-top: 20px;">
+            <thead>
+                <tr>
+                    <th class="sortable" data-sort="name">Agency</th>
+                    <th class="sortable" data-sort="commits">Commits (30d)</th>
+                    <th class="sortable" data-sort="prs">PRs Created (30d)</th>
+                    <th class="sortable" data-sort="active_repos">Active Repos (30d)</th>
+                    <th class="sortable" data-sort="repos">Total Public Repos</th>
+                    <th class="sortable" data-sort="last">Last Activity</th>
+                    <th>Activity Heatmap</th>
+                </tr>
+            </thead>
+            <tbody id="agencies-tbody">
+            </tbody>
+        </table>
+
+        <div class="legend">
+            <span>Less</span>
+            <div class="legend-scale">
+                <div class="day level-0"></div>
+                <div class="day level-1"></div>
+                <div class="day level-2"></div>
+                <div class="day level-3"></div>
+                <div class="day level-4"></div>
             </div>
-            
-            <div class="stats-box">
-                <div id="percentage" class="stat-number">-%</div>
-                <div class="stat-label">of <a href="https://www.opm.gov/policy-data-oversight/classification-qualifications/classifying-general-schedule-positions/standards/2200/gs2200a.pdf" target="_blank">Information Technology Management (2210)</a> postings since Oct 1, 2025 still use "IT Specialist"</div>
-            </div>
-            
-            <div class="description">
-                <p>
-                    Following <a href="https://www.whitehouse.gov/presidential-actions/2025/01/reforming-the-federal-hiring-process-and-restoring-merit-to-government-service/" target="_blank" class="key-point">Executive Order 14170</a> on reforming federal hiring, 
-                    on <span class="key-point">September 9, 2025</span>, the Office of Personnel Management issued 
-                    <a href="https://www.opm.gov/chcoc/latest-memos/job-titling-guidance-in-alignment-with-executive-order-14170-and-the-merit-hiring-plan/" target="_blank" class="key-point">guidance</a> requiring 
-                    federal agencies to use <span class="key-point">plain language job titles</span> in announcements—titles that are 
-                    "descriptive, organizational, or functional" rather than "generic or jargon-laden." 
-                    The memo <span class="key-point">explicitly cited "IT Specialist" as the example of what NOT to do</span>, requiring 
-                    agencies to use titles like <strong>"Cloud Engineer," "Data Scientist," or "Cybersecurity Analyst"</strong> instead.
-                </p>
-                <p>
-                    This counter tracks compliance with the Merit Hiring Plan by monitoring days since 
-                    the last <span class="key-point">"IT Specialist" posting</span> on <a href="https://www.usajobs.gov" target="_blank" class="key-point">USAJobs</a>. 
-                    We use "IT Specialist" as the benchmark because it was <span class="key-point">explicitly called out by OPM</span> and is easy to identify automatically.
-                </p>
-                
-                <div class="disclaimer">
-                    <p>
-                        <strong>Note:</strong> Just because a job title isn't "IT Specialist" doesn't mean it 
-                        meets the plain language standard. Other <strong>bad 2210 titles</strong> we've observed include 
-                        <span id="other-bad-titles">"IT Program Manager," "Computer Systems Administrator (CSA)," and "IT System Administrator"</span>
-                        — but we're setting the bar here because it's <span class="key-point">unambiguous and measurable</span>.
-                    </p>
-                </div>
-            </div>
-            
-            <div class="link-section">
-                <a id="last-posting-link" href="#" class="last-posting-link">
-                    View Last Posting →
-                </a>
-            </div>
-            
-            <div class="updated">
-                Last updated: <span id="last-updated">-</span>
-            </div>
+            <span>More</span>
         </div>
         
-        <div id="error" class="error" style="display: none;">
-            Unable to load data. Please try again later.
+        <footer style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #21262d; text-align: center; font-size: 12px; color: #8b949e;">
+            <p>Created by Abigail Haddad | 
+            <a href="https://github.com/abigailhaddad/government_github" target="_blank" style="color: #58a6ff;">View Source</a> | 
+            <a href="https://abigailhaddad.netlify.app/" target="_blank" style="color: #58a6ff;">Website</a> | 
+            <a href="https://presentofcoding.substack.com/" target="_blank" style="color: #58a6ff;">Blog</a>
+            </p>
+        </footer>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <!-- Modal for day details -->
+    <div id="day-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modal-content">
+                <!-- Content will be populated by JavaScript -->
+            </div>
         </div>
     </div>
 
     <script>
         async function loadData() {
             try {
-                const response = await fetch('data/2210_metrics.json');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                }
+                const response = await fetch('data/github_activity.json');
+                if (!response.ok) throw new Error('Failed to load data');
                 
                 const data = await response.json();
                 
-                // Calculate days since last IT specialist posting
-                const lastPostingDate = new Date(data.most_recent_it_specialist.date_posted);
-                const now = new Date();
-                const diffTime = Math.abs(now - lastPostingDate);
-                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                // Show summary stats
+                showSummaryStats(data);
                 
-                // Update UI
-                document.getElementById('days-number').textContent = diffDays;
-                document.getElementById('percentage').textContent = data.it_specialist_percentage + '%';
+                // Hide loading message and show table
+                document.getElementById('agencies').style.display = 'none';
+                document.getElementById('agencies-table').style.display = 'table';
+                document.getElementById('search-container').style.display = 'block';
                 
-                // Update other bad titles if available
-                if (data.other_bad_titles && data.other_bad_titles.length > 0) {
-                    const titlesList = data.other_bad_titles.map(title => `"${title}"`).join(', ');
-                    document.getElementById('other-bad-titles').textContent = titlesList;
-                }
+                // Store data for sorting
+                window.agencyData = Object.entries(data.agencies).map(([name, agency]) => ({
+                    name,
+                    ...agency
+                }));
+                window.filteredData = [...window.agencyData]; // Copy for filtering
                 
-                // Set links
-                const link = data.most_recent_it_specialist.link;
-                if (link && link !== '#') {
-                    document.getElementById('counter-link').href = link;
-                    document.getElementById('last-posting-link').href = link;
-                    document.getElementById('last-posting-link').style.display = 'inline-block';
-                } else {
-                    // Hide the link if we don't have a valid URL
-                    document.getElementById('last-posting-link').style.display = 'none';
-                }
+                // Initial sort by commits (high to low)
+                sortTable('commits');
                 
-                // Format last updated date
-                const updatedDate = new Date(data.generated_at);
-                document.getElementById('last-updated').textContent = updatedDate.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
+                // Add click handlers for sorting
+                document.querySelectorAll('th.sortable').forEach(th => {
+                    th.addEventListener('click', () => sortTable(th.dataset.sort));
                 });
                 
-                // Show content, hide loading
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
+                // Add search functionality
+                document.getElementById('agency-search').addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    window.filteredData = window.agencyData.filter(agency => 
+                        agency.name.toLowerCase().includes(searchTerm)
+                    );
+                    sortTable('commits'); // Re-render with filtered data
+                });
                 
             } catch (error) {
                 console.error('Error loading data:', error);
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('error').style.display = 'block';
+                document.getElementById('agencies').innerHTML = 
+                    '<div class="loading">❌ Error loading data. Please try again later.</div>';
             }
         }
+
+        function sortTable(sortBy) {
+            const tbody = document.getElementById('agencies-tbody');
+            
+            // Sort the filtered data
+            const sorted = [...window.filteredData].sort((a, b) => {
+                switch(sortBy) {
+                    case 'name':
+                        return a.name.localeCompare(b.name);
+                    case 'commits':
+                        return (b.commits || 0) - (a.commits || 0);
+                    case 'prs':
+                        return (b.prs || 0) - (a.prs || 0);
+                    case 'active_repos':
+                        return (b.active_repos || 0) - (a.active_repos || 0);
+                    case 'repos':
+                        return (b.repos || 0) - (a.repos || 0);
+                    case 'last':
+                        const aDays = a.last_activity_days || 999;
+                        const bDays = b.last_activity_days || 999;
+                        return aDays - bDays;
+                    default:
+                        return 0;
+                }
+            });
+            
+            // Clear existing rows
+            tbody.innerHTML = '';
+            
+            // Add sorted rows
+            sorted.forEach(agency => renderAgencyRow(agency));
+        }
+
+        function renderAgencyRow(agency) {
+            const row = document.createElement('tr');
+            
+            const totalActivity = (agency.commits || 0) + (agency.prs || 0);
+            const lastActivityText = agency.last_activity && agency.last_activity_days !== null
+                ? `${agency.last_activity_days} days ago`
+                : '>30 days';
+
+            const githubUrl = agency.exists ? `https://github.com/${agency.org_name}` : '#';
+            
+            // Generate heatmap
+            const heatmapData = generateHeatmapData(agency.daily_activity);
+            const weeks = groupIntoWeeks(heatmapData);
+            
+            row.innerHTML = `
+                <td class="agency-name-cell">
+                    ${agency.exists ? 
+                        `<a href="${githubUrl}" target="_blank" class="agency-name">${agency.name}</a>` :
+                        `<span style="color: #8b949e;">${agency.name}</span>`
+                    }
+                </td>
+                <td class="commits-cell" style="text-align: center; width: 100px;">
+                    <span class="stat-badge">${agency.commits || 0}</span>
+                </td>
+                <td class="prs-cell" style="text-align: center; width: 100px;">
+                    <span class="stat-badge">${agency.prs || 0}</span>
+                </td>
+                <td class="active-repos-cell" style="text-align: center; width: 100px;">
+                    <span class="stat-badge">${agency.active_repos || 0}</span>
+                </td>
+                <td class="repos-cell">
+                    <span class="stat-badge">${agency.repos || 0}</span>
+                </td>
+                <td class="last-activity-cell">
+                    ${lastActivityText}
+                </td>
+                <td class="heatmap-cell">
+                    <div class="heatmap" id="heatmap-${agency.name}"></div>
+                </td>
+            `;
+
+            document.getElementById('agencies-tbody').appendChild(row);
+
+            // Add heatmap visualization
+            const heatmap = document.getElementById(`heatmap-${agency.name}`);
+            weeks.forEach(week => {
+                const weekDiv = document.createElement('div');
+                weekDiv.className = 'week';
+                
+                week.forEach(day => {
+                    const dayDiv = document.createElement('div');
+                    const hasActivity = day.total > 0;
+                    dayDiv.className = `day level-${day.level}${hasActivity ? ' clickable' : ''}`;
+                    dayDiv.dataset.date = day.date;
+                    dayDiv.dataset.commits = day.total;
+                    
+                    // Simple hover tooltip
+                    dayDiv.addEventListener('mouseenter', (e) => {
+                        const tooltip = document.getElementById('tooltip');
+                        tooltip.innerHTML = `
+                            <strong>${day.date}</strong><br>
+                            ${day.commits} commits, ${day.prs} PRs created<br>
+                            ${hasActivity ? 'Click for details' : ''}
+                        `;
+                        tooltip.style.display = 'block';
+                        tooltip.style.left = e.pageX + 10 + 'px';
+                        tooltip.style.top = e.pageY + 10 + 'px';
+                    });
+                    
+                    dayDiv.addEventListener('mouseleave', () => {
+                        document.getElementById('tooltip').style.display = 'none';
+                    });
+                    
+                    // Click handler for detailed view
+                    if (hasActivity) {
+                        dayDiv.addEventListener('click', () => {
+                            showDayDetails(agency.name, day);
+                        });
+                    }
+                    
+                    weekDiv.appendChild(dayDiv);
+                });
+                
+                heatmap.appendChild(weekDiv);
+            });
+        }
+
+        function generateHeatmapData(dailyActivity) {
+            const data = [];
+            const today = new Date();
+            
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                
+                const dayData = dailyActivity[dateStr] || { commits: 0, prs: 0, total: 0 };
+                const total = dayData.total || 0;
+                
+                // Map activity to levels (0-4)
+                let level = 0;
+                if (total > 50) level = 4;
+                else if (total > 20) level = 3;
+                else if (total > 5) level = 2;
+                else if (total > 0) level = 1;
+                
+                data.push({
+                    date: dateStr,
+                    level: level,
+                    commits: dayData.commits || 0,
+                    prs: dayData.prs || 0,
+                    total: total,
+                    commit_links: dayData.commit_links || [],
+                    pr_links: dayData.pr_links || []
+                });
+            }
+            return data;
+        }
+
+        function showSummaryStats(data) {
+            const totalRepos = Object.values(data.agencies).reduce((sum, agency) => sum + (agency.repos || 0), 0);
+            const activeAgencies = Object.values(data.agencies).filter(agency => 
+                (agency.commits || 0) + (agency.prs || 0) > 0
+            ).length;
+            const lastUpdate = new Date(data.generated_at).toLocaleDateString();
+            
+            document.getElementById('summary-stats').innerHTML = `
+                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; font-size: 14px; color: #8b949e;">
+                    <span class="stat-badge">${Object.keys(data.agencies).length} agencies tracked</span>
+                    <span class="stat-badge">${activeAgencies} agencies active (30 days)</span>
+                    <span class="stat-badge">${totalRepos.toLocaleString()} total public repos</span>
+                    <span class="stat-badge">${data.total_commits?.toLocaleString() || 0} commits</span>
+                    <span class="stat-badge">${data.total_prs?.toLocaleString() || 0} PRs created</span>
+                    <span class="stat-badge">Updated: ${lastUpdate}</span>
+                </div>
+            `;
+            document.getElementById('summary-stats').className = '';
+        }
+
+        function groupIntoWeeks(data) {
+            // Just group the 30 days data into weeks, don't add extra days
+            const weeks = [];
+            let currentWeek = [];
+            
+            // Take exactly the 30 days we have
+            data.forEach((day, index) => {
+                currentWeek.push(day);
+                
+                // Start new week every 7 days or at the end
+                if (currentWeek.length === 7 || index === data.length - 1) {
+                    weeks.push([...currentWeek]);
+                    currentWeek = [];
+                }
+            });
+            
+            return weeks;
+        }
+
+        function showDayDetails(agencyName, day) {
+            const modal = document.getElementById('day-modal');
+            const modalContent = document.getElementById('modal-content');
+            
+            console.log('Day data:', day); // Debug log
+            
+            let content = `
+                <h2>${agencyName}</h2>
+                <h3>${day.date} Activity</h3>
+                <p><strong>${day.commits} commits, ${day.prs} PRs created</strong></p>
+            `;
+            
+            // Show commits by repository
+            if (day.commit_links && day.commit_links.length > 0) {
+                content += '<h4>Commits by Repository</h4>';
+                
+                // Group commits by repo
+                const commitsByRepo = {};
+                day.commit_links.forEach(commit => {
+                    if (!commitsByRepo[commit.repo_name]) {
+                        commitsByRepo[commit.repo_name] = [];
+                    }
+                    commitsByRepo[commit.repo_name].push(commit);
+                });
+                
+                Object.entries(commitsByRepo).forEach(([repoName, commits]) => {
+                    content += `
+                        <div style="margin: 15px 0; padding: 10px; background: #21262d; border-radius: 6px;">
+                            <h5><a href="${commits[0].repo_url}" target="_blank" style="color: #58a6ff;">${repoName}</a> (${commits.length} commits)</h5>
+                            <ul style="margin: 8px 0; padding-left: 20px;">
+                    `;
+                    commits.forEach(commit => {
+                        content += `
+                            <li style="margin: 4px 0;">
+                                <a href="${commit.html_url}" target="_blank" style="color: #58a6ff; font-family: monospace;">${commit.sha}</a>
+                                <span style="color: #8b949e;">by ${commit.author}</span><br>
+                                <span style="font-size: 13px;">${commit.message}</span>
+                            </li>
+                        `;
+                    });
+                    content += '</ul></div>';
+                });
+            }
+            
+            // Show PRs by repository
+            if (day.pr_links && day.pr_links.length > 0) {
+                content += '<h4>Pull Requests by Repository</h4>';
+                
+                // Group PRs by repo
+                const prsByRepo = {};
+                day.pr_links.forEach(pr => {
+                    if (!prsByRepo[pr.repo_name]) {
+                        prsByRepo[pr.repo_name] = [];
+                    }
+                    prsByRepo[pr.repo_name].push(pr);
+                });
+                
+                Object.entries(prsByRepo).forEach(([repoName, prs]) => {
+                    content += `
+                        <div style="margin: 15px 0; padding: 10px; background: #21262d; border-radius: 6px;">
+                            <h5><a href="${prs[0].repo_url}" target="_blank" style="color: #58a6ff;">${repoName}</a> (${prs.length} PRs)</h5>
+                            <ul style="margin: 8px 0; padding-left: 20px;">
+                    `;
+                    prs.forEach(pr => {
+                        content += `
+                            <li style="margin: 4px 0;">
+                                <a href="${pr.html_url}" target="_blank" style="color: #58a6ff;">#${pr.number}</a>
+                                <span style="color: #8b949e;">by ${pr.author}</span>
+                                <span style="padding: 2px 6px; background: ${pr.state === 'open' ? '#238636' : '#8b949e'}; border-radius: 12px; font-size: 11px; margin-left: 8px;">${pr.state}</span><br>
+                                <span style="font-size: 13px;">${pr.title}</span>
+                            </li>
+                        `;
+                    });
+                    content += '</ul></div>';
+                });
+            }
+            
+            modalContent.innerHTML = content;
+            modal.style.display = 'block';
+        }
+
+        // Modal close handlers
+        document.querySelector('.close').addEventListener('click', () => {
+            document.getElementById('day-modal').style.display = 'none';
+        });
         
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('day-modal');
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
         // Load data when page loads
         document.addEventListener('DOMContentLoaded', loadData);
-        
-        // Refresh data every 5 minutes
-        setInterval(loadData, 5 * 60 * 1000);
     </script>
 </body>
 </html>
