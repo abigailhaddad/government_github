@@ -57,7 +57,7 @@ FEDERAL_AGENCIES = {
 
 def get_github_headers():
     """Get GitHub API headers with authorization"""
-    token = os.getenv("GITHUB_TOKEN")
+    token = os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN")
     
     headers = {
         "Accept": "application/vnd.github.v3+json",
