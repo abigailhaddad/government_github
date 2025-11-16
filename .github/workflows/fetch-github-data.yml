@@ -95,8 +95,8 @@ jobs:
           git checkout -b prod
         fi
         
-        # Merge latest main into prod
-        git merge main --no-edit
+        # Merge latest main into prod (allow unrelated histories)
+        git merge main --no-edit --allow-unrelated-histories
         
     - name: Push to prod branch
       run: |
