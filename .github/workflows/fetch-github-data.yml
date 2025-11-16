@@ -83,20 +83,17 @@ jobs:
         # Fetch all branches
         git fetch origin
         
-        # Check if prod branch exists locally or remotely
-        if git show-ref --verify --quiet refs/heads/prod; then
-          echo "Prod branch exists locally, switching to it"
-          git checkout prod
-        elif git show-ref --verify --quiet refs/remotes/origin/prod; then
-          echo "Prod branch exists remotely, checking it out"
-          git checkout -b prod origin/prod
-        else
-          echo "Creating new prod branch from main"
-          git checkout -b prod
+        # Check if prod branch exists remotely and delete it to recreate
+        if git show-ref --verify --quiet refs/remotes/origin/prod; then
+          echo "Prod branch exists remotely, deleting it to recreate from main"
+          git push origin --delete prod
         fi
         
-        # Merge latest main into prod (allow unrelated histories)
-        git merge main --no-edit --allow-unrelated-histories
+        # Create fresh prod branch from current main
+        echo "Creating new prod branch from main"
+        git checkout -b prod
+        
+        # No merge needed since we're creating fresh from main
         
     - name: Push to prod branch
       run: |
