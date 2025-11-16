@@ -100,8 +100,8 @@
         /* Larger tap targets for mobile */
         @media (max-width: 768px) {
             .day {
-                width: 14px;
-                height: 14px;
+                width: 10px;
+                height: 10px;
             }
             
             .day.clickable::before {
@@ -127,8 +127,8 @@
 
         @media (max-width: 480px) {
             .day {
-                width: 16px;
-                height: 16px;
+                width: 8px;
+                height: 8px;
             }
             
             .day.clickable::before {
@@ -398,10 +398,12 @@
                 width: 120px;
             }
             .heatmap-cell {
-                min-width: 250px;
+                min-width: 280px;
+                width: auto;
             }
             .heatmap {
-                max-width: 250px;
+                max-width: none;
+                width: 280px;
             }
         }
 
