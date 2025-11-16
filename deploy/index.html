@@ -316,6 +316,14 @@
             font-size: 12px;
         }
 
+        .desktop-header {
+            display: inline;
+        }
+        
+        .mobile-header {
+            display: none;
+        }
+
         tr:hover {
             background: #0d1117;
         }
@@ -329,8 +337,18 @@
         .prs-cell,
         .active-repos-cell,
         .repos-cell {
-            width: 10%;
+            width: 8%;
             text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .commits-cell,
+            .prs-cell,
+            .active-repos-cell,
+            .repos-cell {
+                width: 60px;
+                font-size: 10px;
+            }
         }
 
         .last-activity-cell {
@@ -404,8 +422,16 @@
                 padding: 8px 4px;
             }
             
+            .desktop-header {
+                display: none;
+            }
+            
+            .mobile-header {
+                display: inline;
+            }
+            
             .agency-name-cell {
-                width: 120px;
+                width: 140px;
             }
             .heatmap-cell {
                 min-width: 280px;
@@ -446,6 +472,18 @@
                 font-size: 11px;
                 padding: 6px 2px;
             }
+            
+            .agency-name-cell {
+                width: 120px;
+            }
+            
+            .commits-cell,
+            .prs-cell,
+            .active-repos-cell,
+            .repos-cell {
+                width: 40px;
+                font-size: 9px;
+            }
         }
         }
     </style>
@@ -480,13 +518,34 @@
         <table id="agencies-table" style="display: none; width: 100%; margin-top: 20px;">
             <thead>
                 <tr>
-                    <th class="sortable" data-sort="name">Agency</th>
-                    <th class="sortable" data-sort="commits">Commits (30d)</th>
-                    <th class="sortable" data-sort="prs">PRs Created (30d)</th>
-                    <th class="sortable" data-sort="active_repos">Active Repos (30d)</th>
-                    <th class="sortable" data-sort="repos">Total Public Repos</th>
-                    <th class="sortable" data-sort="last">Last Activity</th>
-                    <th>Activity Heatmap</th>
+                    <th class="sortable" data-sort="name">
+                        <span class="desktop-header">Agency</span>
+                        <span class="mobile-header">Agency</span>
+                    </th>
+                    <th class="sortable" data-sort="commits">
+                        <span class="desktop-header">Commits (30d)</span>
+                        <span class="mobile-header">Commits</span>
+                    </th>
+                    <th class="sortable" data-sort="prs">
+                        <span class="desktop-header">PRs Created (30d)</span>
+                        <span class="mobile-header">PRs</span>
+                    </th>
+                    <th class="sortable" data-sort="active_repos">
+                        <span class="desktop-header">Active Repos (30d)</span>
+                        <span class="mobile-header">Active</span>
+                    </th>
+                    <th class="sortable" data-sort="repos">
+                        <span class="desktop-header">Total Public Repos</span>
+                        <span class="mobile-header">Total</span>
+                    </th>
+                    <th class="sortable" data-sort="last">
+                        <span class="desktop-header">Last Activity</span>
+                        <span class="mobile-header">Last</span>
+                    </th>
+                    <th>
+                        <span class="desktop-header">Activity Heatmap</span>
+                        <span class="mobile-header">Activity</span>
+                    </th>
                 </tr>
             </thead>
             <tbody id="agencies-tbody">
