@@ -71,11 +71,15 @@ jobs:
             sys.exit(1)
         "
         
-    - name: Create or switch to prod branch
+    - name: Commit data changes to main
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
+        git add deploy/data/
+        git diff --staged --quiet || git commit -m "Update federal agency GitHub activity data 🤖 - $(date)"
         
+    - name: Create or switch to prod branch
+      run: |
         # Fetch all branches
         git fetch origin
         
@@ -94,8 +98,6 @@ jobs:
         # Merge latest main into prod
         git merge main --no-edit
         
-    - name: Commit and push to prod branch
+    - name: Push to prod branch
       run: |
-        git add deploy/data/
-        git diff --staged --quiet || git commit -m "Update federal agency GitHub activity data 🤖 - $(date)"
         git push origin prod
