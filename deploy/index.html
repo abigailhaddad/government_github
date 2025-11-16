@@ -549,8 +549,8 @@
                     case 'repos':
                         return (b.repos || 0) - (a.repos || 0);
                     case 'last':
-                        const aDays = a.last_activity_days || 999;
-                        const bDays = b.last_activity_days || 999;
+                        const aDays = a.last_activity_days !== null ? a.last_activity_days : 999;
+                        const bDays = b.last_activity_days !== null ? b.last_activity_days : 999;
                         return aDays - bDays;
                     default:
                         return 0;
