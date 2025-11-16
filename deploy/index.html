@@ -19,22 +19,34 @@
         }
 
         .container {
-            max-width: 95vw;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0 10px;
+            padding: 0 20px;
+            overflow-x: auto;
         }
 
         h1 {
             font-size: 32px;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 24px;
             color: #ffffff;
+            line-height: 1.2;
         }
 
         .subtitle {
             color: #8b949e;
-            margin-bottom: 32px;
-            line-height: 1.5;
+            margin-bottom: 48px;
+            line-height: 1.6;
+            font-size: 16px;
+            max-width: 1160px;
+        }
+
+        .subtitle-section {
+            margin-bottom: 20px;
+        }
+
+        .subtitle-section:last-child {
+            margin-bottom: 0;
         }
 
         .agency-row {
@@ -78,6 +90,44 @@
             border-radius: 2px;
             cursor: pointer;
             transition: all 0.1s;
+            position: relative;
+        }
+
+        .day.clickable {
+            cursor: pointer;
+        }
+
+        /* Larger tap targets for mobile */
+        @media (max-width: 768px) {
+            .day {
+                width: 14px;
+                height: 14px;
+            }
+            
+            .day.clickable::before {
+                content: '';
+                position: absolute;
+                top: -8px;
+                left: -8px;
+                right: -8px;
+                bottom: -8px;
+                background: transparent;
+                cursor: pointer;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .day {
+                width: 16px;
+                height: 16px;
+            }
+            
+            .day.clickable::before {
+                top: -10px;
+                left: -10px;
+                right: -10px;
+                bottom: -10px;
+            }
         }
 
         .day:hover {
@@ -181,12 +231,24 @@
             color: #c9d1d9;
         }
 
-        .day.clickable {
-            cursor: pointer;
-        }
-
         .day.clickable:hover {
             outline: 2px solid #58a6ff;
+        }
+
+        /* Mobile-specific modal improvements */
+        @media (max-width: 768px) {
+            .modal-content {
+                margin: 2% auto;
+                width: 95%;
+                max-height: 90vh;
+                padding: 15px;
+            }
+            
+            .close {
+                font-size: 32px;
+                line-height: 1;
+                padding: 5px;
+            }
         }
 
         .loading {
@@ -202,7 +264,8 @@
             border-radius: 6px;
             overflow: hidden;
             width: 100%;
-            table-layout: auto;
+            table-layout: fixed;
+            max-width: 1160px;
         }
 
         th, td {
@@ -240,53 +303,79 @@
         }
 
         .agency-name-cell {
-            width: 150px;
+            width: 15%;
+            min-width: 120px;
         }
 
-        .activity-cell {
-            width: 120px;
-            text-align: center;
-        }
-
+        .commits-cell,
+        .prs-cell,
+        .active-repos-cell,
         .repos-cell {
-            width: 100px;
+            width: 10%;
             text-align: center;
         }
 
         .last-activity-cell {
-            width: 120px;
+            width: 12%;
             text-align: center;
             font-size: 12px;
             color: #8b949e;
         }
 
         .heatmap-cell {
-            width: auto;
-            min-width: 400px;
+            width: 43%;
+            min-width: 300px;
         }
         
         @media (max-width: 1400px) {
+            .container {
+                max-width: 95vw;
+            }
             .heatmap-cell {
-                min-width: 350px;
+                min-width: 280px;
             }
             .heatmap {
-                max-width: 350px;
+                max-width: 280px;
             }
         }
         
         @media (max-width: 1200px) {
             .container {
                 max-width: 98vw;
+                padding: 0 15px;
+            }
+            table {
+                max-width: none;
             }
             .heatmap-cell {
-                min-width: 300px;
+                min-width: 250px;
             }
             .heatmap {
-                max-width: 300px;
+                max-width: 250px;
             }
         }
         
         @media (max-width: 768px) {
+            body {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 28px;
+                margin-bottom: 20px;
+            }
+            
+            .subtitle {
+                font-size: 15px;
+                margin-bottom: 40px;
+                line-height: 1.7;
+            }
+            
+            #summary-stats div {
+                justify-content: center !important;
+                gap: 10px !important;
+            }
+            
             .agency-name-cell {
                 width: 120px;
             }
@@ -297,17 +386,46 @@
                 max-width: 250px;
             }
         }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px 10px;
+            }
+            
+            h1 {
+                font-size: 24px;
+                margin-bottom: 16px;
+            }
+            
+            .subtitle {
+                font-size: 14px;
+                margin-bottom: 32px;
+                line-height: 1.8;
+            }
+            
+            .container {
+                padding: 0 5px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Federal Agency Github Activity</h1>
-        <p class="subtitle">
-            Tracking public GitHub <strong>commits to default branches and pull request creation</strong> for 32 federal agencies over the last 30 days. 
-            Each square represents one day. Greener squares indicate more development activity in public repositories.<br>
-            Data shows only <em>public</em> repositories and measures creation events, not merges or completions. Agencies may have additional private development activity.<br>
-            <a href="https://digital.gov/resources/requirements-for-achieving-efficiency-transparency-and-innovation-through-reusable-and-open-source-software/" target="_blank" style="color: #58a6ff;">The Federal Source Code Policy</a> pilot program requires agencies to release at least 20% of new custom-developed code each year as open source software.
-        </p>
+        
+        <div class="subtitle">
+            <div class="subtitle-section">
+                Tracking public GitHub <strong>commits to default branches and pull request creation</strong> for federal agencies over the last 30 days. Each square represents one day. Greener squares indicate more development activity in public repositories.
+            </div>
+            
+            <div class="subtitle-section">
+                Data shows only <em>public</em> repositories and measures creation events, not merges or completions. Agencies may have additional private development activity.
+            </div>
+            
+            <div class="subtitle-section">
+                <a href="https://digital.gov/resources/requirements-for-achieving-efficiency-transparency-and-innovation-through-reusable-and-open-source-software/" target="_blank" style="color: #58a6ff; text-decoration: none;">The Federal Source Code Policy</a> pilot program requires agencies to release at least 20% of new custom-developed code each year as open source software.
+            </div>
+        </div>
 
         <div id="summary-stats" class="loading" style="margin-bottom: 30px;"></div>
         
@@ -390,8 +508,8 @@
                 }));
                 window.filteredData = [...window.agencyData]; // Copy for filtering
                 
-                // Initial sort by commits (high to low)
-                sortTable('commits');
+                // Initial sort by last activity (most recent first)
+                sortTable('last');
                 
                 // Add click handlers for sorting
                 document.querySelectorAll('th.sortable').forEach(th => {
@@ -404,7 +522,7 @@
                     window.filteredData = window.agencyData.filter(agency => 
                         agency.name.toLowerCase().includes(searchTerm)
                     );
-                    sortTable('commits'); // Re-render with filtered data
+                    sortTable('last'); // Re-render with filtered data
                 });
                 
             } catch (error) {
@@ -502,27 +620,81 @@
                     dayDiv.dataset.date = day.date;
                     dayDiv.dataset.commits = day.total;
                     
-                    // Simple hover tooltip
-                    dayDiv.addEventListener('mouseenter', (e) => {
-                        const tooltip = document.getElementById('tooltip');
-                        tooltip.innerHTML = `
-                            <strong>${day.date}</strong><br>
-                            ${day.commits} commits, ${day.prs} PRs created<br>
-                            ${hasActivity ? 'Click for details' : ''}
-                        `;
-                        tooltip.style.display = 'block';
-                        tooltip.style.left = e.pageX + 10 + 'px';
-                        tooltip.style.top = e.pageY + 10 + 'px';
-                    });
+                    // Desktop hover tooltip
+                    if (!('ontouchstart' in window)) {
+                        dayDiv.addEventListener('mouseenter', (e) => {
+                            const tooltip = document.getElementById('tooltip');
+                            tooltip.innerHTML = `
+                                <strong>${day.date}</strong><br>
+                                ${day.commits} commits, ${day.prs} PRs created<br>
+                                ${hasActivity ? 'Click for details' : ''}
+                            `;
+                            tooltip.style.display = 'block';
+                            tooltip.style.left = e.pageX + 10 + 'px';
+                            tooltip.style.top = e.pageY + 10 + 'px';
+                        });
+                        
+                        dayDiv.addEventListener('mouseleave', () => {
+                            document.getElementById('tooltip').style.display = 'none';
+                        });
+                    }
                     
-                    dayDiv.addEventListener('mouseleave', () => {
-                        document.getElementById('tooltip').style.display = 'none';
-                    });
-                    
-                    // Click handler for detailed view
+                    // Click and touch handler for detailed view
                     if (hasActivity) {
-                        dayDiv.addEventListener('click', () => {
+                        const showDetails = (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             showDayDetails(agency.name, day);
+                        };
+                        
+                        dayDiv.addEventListener('click', showDetails);
+                        dayDiv.addEventListener('touchend', showDetails);
+                        
+                        // Add visual feedback for touch
+                        dayDiv.addEventListener('touchstart', (e) => {
+                            e.preventDefault();
+                            dayDiv.style.transform = 'scale(1.1)';
+                            dayDiv.style.outline = '2px solid #58a6ff';
+                        });
+                        
+                        dayDiv.addEventListener('touchcancel', () => {
+                            dayDiv.style.transform = '';
+                            dayDiv.style.outline = '';
+                        });
+                    }
+                    
+                    // Mobile tooltip on long press
+                    if ('ontouchstart' in window) {
+                        let touchTimeout;
+                        
+                        dayDiv.addEventListener('touchstart', (e) => {
+                            touchTimeout = setTimeout(() => {
+                                const tooltip = document.getElementById('tooltip');
+                                tooltip.innerHTML = `
+                                    <strong>${day.date}</strong><br>
+                                    ${day.commits} commits, ${day.prs} PRs created<br>
+                                    ${hasActivity ? 'Tap for details' : ''}
+                                `;
+                                tooltip.style.display = 'block';
+                                tooltip.style.left = e.touches[0].pageX + 10 + 'px';
+                                tooltip.style.top = e.touches[0].pageY - 50 + 'px';
+                                
+                                setTimeout(() => {
+                                    tooltip.style.display = 'none';
+                                }, 2000);
+                            }, 500);
+                        });
+                        
+                        dayDiv.addEventListener('touchend', () => {
+                            clearTimeout(touchTimeout);
+                            dayDiv.style.transform = '';
+                            dayDiv.style.outline = '';
+                        });
+                        
+                        dayDiv.addEventListener('touchmove', () => {
+                            clearTimeout(touchTimeout);
+                            dayDiv.style.transform = '';
+                            dayDiv.style.outline = '';
                         });
                     }
                     
@@ -573,7 +745,7 @@
             const lastUpdate = new Date(data.generated_at).toLocaleDateString();
             
             document.getElementById('summary-stats').innerHTML = `
-                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; font-size: 14px; color: #8b949e;">
+                <div style="display: flex; gap: 20px; justify-content: flex-start; flex-wrap: wrap; font-size: 14px; color: #8b949e; max-width: 1160px;">
                     <span class="stat-badge">${Object.keys(data.agencies).length} agencies tracked</span>
                     <span class="stat-badge">${activeAgencies} agencies active (30 days)</span>
                     <span class="stat-badge">${totalRepos.toLocaleString()} total public repos</span>

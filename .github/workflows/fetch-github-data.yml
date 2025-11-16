@@ -71,10 +71,31 @@ jobs:
             sys.exit(1)
         "
         
-    - name: Commit and push updated data
+    - name: Create or switch to prod branch
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
+        
+        # Fetch all branches
+        git fetch origin
+        
+        # Check if prod branch exists locally or remotely
+        if git show-ref --verify --quiet refs/heads/prod; then
+          echo "Prod branch exists locally, switching to it"
+          git checkout prod
+        elif git show-ref --verify --quiet refs/remotes/origin/prod; then
+          echo "Prod branch exists remotely, checking it out"
+          git checkout -b prod origin/prod
+        else
+          echo "Creating new prod branch from main"
+          git checkout -b prod
+        fi
+        
+        # Merge latest main into prod
+        git merge main --no-edit
+        
+    - name: Commit and push to prod branch
+      run: |
         git add deploy/data/
         git diff --staged --quiet || git commit -m "Update federal agency GitHub activity data 🤖 - $(date)"
-        git push
+        git push origin prod
