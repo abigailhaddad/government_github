@@ -73,9 +73,8 @@
         .heatmap {
             display: flex;
             gap: 3px;
-            flex-wrap: nowrap;
+            flex-wrap: wrap;
             max-width: 900px;
-            overflow-x: auto;
         }
 
         .week {
@@ -117,14 +116,11 @@
             }
             
             .heatmap {
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
+                max-width: 100%;
                 gap: 2px;
             }
             
             .week {
-                flex-shrink: 0;
                 gap: 2px;
             }
         }
@@ -143,6 +139,7 @@
             }
             
             .heatmap {
+                max-width: 100%;
                 gap: 1px;
             }
             
