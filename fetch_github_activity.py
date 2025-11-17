@@ -57,7 +57,12 @@ FEDERAL_AGENCIES = {
     # Additional defense/security agencies  
     'TAK Product Center': 'TAK-Product-Center',                        # Defense geospatial
     'National Security Agency': 'NationalSecurityAgency',              # NSA
-    'U.S. Naval Research Laboratory': 'USNavalResearchLaboratory'      # Naval Research
+    'U.S. Naval Research Laboratory': 'USNavalResearchLaboratory',     # Naval Research
+    
+    # Data and economic agencies
+    'U.S. Census Bureau': 'uscensusbureau',                            # Census data/APIs
+    'Federal Reserve Board': 'federalreserve',                         # No public repos yet
+    'U.S. Patent and Trademark Office': 'uspto'                        # No public repos yet
 }
 
 def get_github_headers():
