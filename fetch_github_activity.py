@@ -52,7 +52,12 @@ FEDERAL_AGENCIES = {
     'United States Agency for International Development': 'usaid',       # 8 repos
     'Internal Revenue Service': 'IRSgov',                               # 5 repos
     'United States Department of Agriculture': 'usda',                  # 4 repos
-    'U.S. Citizenship and Immigration Services': 'uscis'                # 2 repos
+    'U.S. Citizenship and Immigration Services': 'uscis',               # 2 repos
+    
+    # Additional defense/security agencies  
+    'TAK Product Center': 'TAK-Product-Center',                        # Defense geospatial
+    'National Security Agency': 'NationalSecurityAgency',              # NSA
+    'U.S. Naval Research Laboratory': 'USNavalResearchLaboratory'      # Naval Research
 }
 
 def get_github_headers():
