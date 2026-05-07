@@ -134,7 +134,7 @@ def make_github_request(url, headers, params=None, max_retries=3):
     
     return None
 
-def get_org_activity(org_name, days_back=30):
+def get_org_activity(org_name, days_back=90):
     """Get activity for a single organization over the last N days"""
     headers = get_github_headers()
     since_date = datetime.now() - timedelta(days=days_back)
