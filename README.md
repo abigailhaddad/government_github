@@ -11,7 +11,7 @@ A visualization tool that tracks public GitHub activity for 32 federal agencies,
 
 ## 🚀 Live Site
 
-[View the Federal GitHub Activity Tracker](https://federal-github-activity.netlify.app)
+[View the Federal GitHub Activity Tracker](https://federal-github-activity.abigailhaddad.com)
 
 ## 📊 How it works
 
@@ -52,4 +52,4 @@ This tracker supports transparency around the [Federal Source Code Policy](https
 
 ---
 
-Created by [Abigail Haddad](https://abigailhaddad.netlify.app/) | [Blog](https://presentofcoding.substack.com/)
+Created by [Abigail Haddad](https://abigailhaddad.com/) | [Blog](https://presentofcoding.substack.com/)
