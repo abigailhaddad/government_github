@@ -9,7 +9,18 @@ on:
 jobs:
   fetch-data:
     runs-on: ubuntu-latest
-    
+
+    permissions:
+      contents: read
+      pages: write     # to publish the site
+      id-token: write  # required by actions/deploy-pages
+
+    # deploy-pages publishes through this environment; the URL it reports shows
+    # up on the run summary.
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -71,30 +82,24 @@ jobs:
             sys.exit(1)
         "
         
-    - name: Commit data changes to main
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add deploy/data/
-        git diff --staged --quiet || git commit -m "Update federal agency GitHub activity data 🤖 - $(date)"
-        
-    - name: Create or switch to prod branch
-      run: |
-        # Fetch all branches
-        git fetch origin
-        
-        # Check if prod branch exists remotely and delete it to recreate
-        if git show-ref --verify --quiet refs/remotes/origin/prod; then
-          echo "Prod branch exists remotely, deleting it to recreate from main"
-          git push origin --delete prod
-        fi
-        
-        # Create fresh prod branch from current main
-        echo "Creating new prod branch from main"
-        git checkout -b prod
-        
-        # No merge needed since we're creating fresh from main
-        
-    - name: Push to prod branch
-      run: |
-        git push origin prod
+    # The refreshed data is no longer committed. fetch_github_activity.py writes
+    # github_activity.json from scratch on every run and never reads the previous
+    # copy, and the old commit only ever reached the throwaway prod branch, so
+    # nothing was being preserved -- committing it now would just add ~2 MB of
+    # regenerable JSON to main every day. It ships straight from the working tree
+    # to Pages instead.
+
+    # Published to GitHub Pages, not Netlify. Netlify bills per deploy -- this
+    # site was spending about half of the whole account's monthly deploy budget
+    # on its own -- while Pages does not meter builds. That also retires the
+    # prod branch this workflow used to force-recreate and push on every run:
+    # the branch existed only as a Netlify build trigger, and deploying the
+    # directory directly is what it was standing in for.
+    - name: Upload the site
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: deploy
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
