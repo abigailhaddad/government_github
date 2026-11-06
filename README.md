@@ -24,7 +24,7 @@ A visualization tool that tracks public GitHub activity for 32 federal agencies,
 
 - **Frontend**: Vanilla HTML/CSS/JavaScript with responsive design
 - **Backend**: Python script using GitHub API v4
-- **Deployment**: Cloudflare Pages (moving from GitHub Pages; see `DEPLOY.md`)
+- **Deployment**: Cloudflare Pages (see `DEPLOY.md`)
 - **Automation**: GitHub Actions for daily updates
 - **Data Validation**: Automated quality checks before deployment
 

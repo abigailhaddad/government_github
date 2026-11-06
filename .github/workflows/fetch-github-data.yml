@@ -12,14 +12,6 @@ jobs:
 
     permissions:
       contents: read
-      pages: write     # to publish the site
-      id-token: write  # required by actions/deploy-pages
-
-    # deploy-pages publishes through this environment; the URL it reports shows
-    # up on the run summary.
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
     - name: Checkout repository
@@ -82,36 +74,32 @@ jobs:
             sys.exit(1)
         "
         
-    # The refreshed data is no longer committed. fetch_github_activity.py writes
+    # The refreshed data is not committed. fetch_github_activity.py writes
     # github_activity.json from scratch on every run and never reads the previous
-    # copy, and the old commit only ever reached the throwaway prod branch, so
-    # nothing was being preserved -- committing it now would just add ~2 MB of
-    # regenerable JSON to main every day. It ships straight from the working tree
-    # to Pages instead.
+    # copy, so nothing is preserved by committing it. The site ships straight from
+    # the working tree: the deploy step below uploads the deploy/ folder as it
+    # stands after the fetch.
 
-    # Published to GitHub Pages, not Netlify. Netlify bills per deploy -- this
-    # site was spending about half of the whole account's monthly deploy budget
-    # on its own -- while Pages does not meter builds. That also retires the
-    # prod branch this workflow used to force-recreate and push on every run:
-    # the branch existed only as a Netlify build trigger, and deploying the
-    # directory directly is what it was standing in for.
-    - name: Upload the site
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: deploy
-
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
-
-    # Cloudflare Pages deploy, for the move off GitHub Pages (see DEPLOY.md).
-    # Skipped until the CLOUDFLARE_ACCOUNT_ID repo variable exists, so merging
-    # this changes nothing by itself. Secret: CLOUDFLARE_API_TOKEN. Variables:
+    # Cloudflare Pages is the only host (see DEPLOY.md). Secret:
+    # CLOUDFLARE_API_TOKEN (Account > Cloudflare Pages > Edit). Variables:
     # CLOUDFLARE_ACCOUNT_ID, and optionally CLOUDFLARE_PROJECT (default
-    # federal-github-activity). Runs after the GitHub Pages deploy, so a Cloudflare
-    # failure shows as a red run without stopping the GitHub Pages site updating.
+    # federal-github-activity). The check below fails the run when the
+    # credentials or the site folder are missing, so a run never ends green
+    # without publishing.
+    - name: Check the site folder and deploy credentials
+      env:
+        HAS_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+        ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      run: |
+        fail=0
+        for f in deploy/index.html deploy/_headers deploy/data/github_activity.json; do
+          if [ ! -s "$f" ]; then echo "::error::$f is missing or empty"; fail=1; fi
+        done
+        if [ "$HAS_TOKEN" != "true" ]; then echo "::error::secret CLOUDFLARE_API_TOKEN is not set"; fail=1; fi
+        if [ -z "$ACCOUNT_ID" ]; then echo "::error::variable CLOUDFLARE_ACCOUNT_ID is not set"; fail=1; fi
+        exit $fail
+
     - name: Deploy to Cloudflare Pages
-      if: ${{ vars.CLOUDFLARE_ACCOUNT_ID != '' }}
       uses: cloudflare/wrangler-action@v3
       with:
         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
