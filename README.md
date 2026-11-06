@@ -24,7 +24,7 @@ A visualization tool that tracks public GitHub activity for 32 federal agencies,
 
 - **Frontend**: Vanilla HTML/CSS/JavaScript with responsive design
 - **Backend**: Python script using GitHub API v4
-- **Deployment**: Netlify static site hosting
+- **Deployment**: Cloudflare Pages (moving from GitHub Pages; see `DEPLOY.md`)
 - **Automation**: GitHub Actions for daily updates
 - **Data Validation**: Automated quality checks before deployment
 
@@ -32,13 +32,13 @@ A visualization tool that tracks public GitHub activity for 32 federal agencies,
 
 **Root (GitHub Actions):**
 - `fetch_github_activity.py` - Fetches and processes GitHub data
-- `.github/workflows/` - Daily automation and validation
+- `.github/workflows/` - Daily automation, validation and deploy
 - `requirements.txt` - Python dependencies
 
-**Deploy folder (Netlify):**
+**Deploy folder (the published site):**
 - `deploy/index.html` - Main tracker webpage
 - `deploy/data/github_activity.json` - Generated activity data
-- `deploy/netlify.toml` - Deployment configuration
+- `deploy/_headers` - Cache headers for the data file (Cloudflare Pages)
 
 ## 📈 Data Coverage
 
