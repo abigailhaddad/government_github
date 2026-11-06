@@ -1,44 +1,33 @@
-# Moving the site to Cloudflare Pages
+# Hosting and deploy
 
-The site is the `deploy/` folder. The daily workflow (`.github/workflows/fetch-github-data.yml`) refreshes `deploy/data/github_activity.json` and publishes the folder.
+The site is the `deploy/` folder. The daily workflow (`.github/workflows/fetch-github-data.yml`) fetches new data into `deploy/data/github_activity.json`, validates it, and publishes the folder to Cloudflare Pages. Cloudflare Pages is the only host.
 
-## Where it is now
+- Address: https://federal-github-activity.abigailhaddad.com
+- Pages project: `federal-github-activity` (also reachable at `federal-github-activity.pages.dev`)
+- Schedule: 02:00 UTC every day (GitHub often starts it later), and on demand from the Actions tab.
 
-- Published to GitHub Pages by the workflow (`actions/deploy-pages`).
-- Custom domain `federal-github-activity.abigailhaddad.com` is a DNS CNAME to `abigailhaddad.github.io`. Over `http` it works. Over `https` the certificate doesn't match. "Enforce HTTPS" is off in the Pages settings.
-- `abigailhaddad.com` DNS is on Cloudflare, like the other sites.
+## Secret and variables
 
-## What this PR changes
+Set these in the repo under Settings, Secrets and variables, Actions.
 
-- Adds a "Deploy to Cloudflare Pages" step after the GitHub Pages deploy. It is skipped until the repo variable `CLOUDFLARE_ACCOUNT_ID` exists, so merging changes nothing by itself.
-- Adds `deploy/_headers` (the 5-minute cache on `/data/*`, replacing `deploy/netlify.toml`).
-- Deletes `deploy/netlify.toml` and `deploy/_redirects`. They were Netlify-only. The workflow stopped deploying to Netlify earlier.
-- Footer "Website" link now points at `abigailhaddad.com`, and the README no longer says Netlify.
+| Name | Kind | What it is |
+|---|---|---|
+| `CLOUDFLARE_API_TOKEN` | secret | A Cloudflare token with Account, Cloudflare Pages, Edit. GitHub never shows a stored value, so make a new token or roll the old one. |
+| `CLOUDFLARE_ACCOUNT_ID` | variable | The Cloudflare account id. |
+| `CLOUDFLARE_PROJECT` | variable, optional | The Pages project name. Defaults to `federal-github-activity`. |
+| `GH_TOKEN` | secret | A GitHub token the data fetch uses to read public repositories. |
 
-GitHub Pages keeps working until you remove it in step 8.
+A step before the deploy fails the run when the token, the account id, or any of `deploy/index.html`, `deploy/_headers` or `deploy/data/github_activity.json` is missing, so a run can't finish green without publishing.
 
-## Steps, in this order
+## Moving it to a new owner
 
-1. **Merge the PR.** Nothing changes yet.
-2. **Create the Pages project.** Cloudflare dashboard, Workers & Pages, Create, Pages, Upload assets. Name it `federal-github-activity` (the workflow's default). Production branch `main`. Any placeholder file will do for the first upload. A different name needs the repo variable `CLOUDFLARE_PROJECT` set to it.
-3. **Add to this repo** (Settings, Secrets and variables, Actions):
-   - Secret `CLOUDFLARE_API_TOKEN`: a token with Account, Cloudflare Pages, Edit. The `ota-watch` repo uses one. GitHub won't show its value, so make a new token or paste the one you saved.
-   - Variable `CLOUDFLARE_ACCOUNT_ID`: your Cloudflare account id. The `dod` repo has the same variable.
-4. **Run the workflow by hand** (Actions, Fetch Federal GitHub Activity, Run workflow). Check the "Deploy to Cloudflare Pages" step is green and `https://federal-github-activity.pages.dev` loads with current data. (If you named the project differently, the address changes.)
-5. **Switch the domain.** In Cloudflare DNS for `abigailhaddad.com`, delete the CNAME `federal-github-activity` that points at `abigailhaddad.github.io`. Then in the Pages project, Custom domains, add `federal-github-activity.abigailhaddad.com`. Cloudflare creates the new record and issues the certificate, usually within minutes. The site can be down for those minutes. Deleting the record first is needed or Cloudflare refuses the domain.
-6. **Check** `https://federal-github-activity.abigailhaddad.com` loads over HTTPS, the heatmap renders, and the data's `generated_at` is today's.
-7. **Wait one scheduled run** (the cron is 02:00 UTC, though GitHub has been running it around 08:00 UTC) and confirm the Cloudflare step passes unattended.
-8. **Retire GitHub Pages**, in a follow-up commit:
-   - In the workflow, delete the "Upload the site" and "Deploy to GitHub Pages" steps, the `environment:` block, and the `pages: write` and `id-token: write` permissions. Remove the `if:` line from the Cloudflare step.
-   - Delete `deploy/CNAME`.
-   - In GitHub, Settings, Pages: clear the custom domain, and set the source to none.
+1. Create a Pages project in your Cloudflare account (Workers & Pages, Create, Pages, Upload assets). Production branch `main`. Use the default name, or set `CLOUDFLARE_PROJECT`.
+2. Add the secret and variables above.
+3. Run the workflow by hand (Actions, Fetch Federal GitHub Activity, Run workflow) and check the `pages.dev` address loads with today's `generated_at`.
+4. For a custom domain, add it under the project's Custom domains. If the domain's DNS is on Cloudflare, point a CNAME for the name at `<project>.pages.dev`.
 
-## Undo
+The footer link in `deploy/index.html` points at `abigailhaddad.com`; change it for a new owner.
 
-Before step 5: nothing to undo. After it: re-create the CNAME `federal-github-activity` to `abigailhaddad.github.io` and remove the custom domain from the Pages project. GitHub Pages is still deploying until step 8.
+## Cache headers
 
-## Not checked
-
-- Why the certificate on the GitHub Pages domain is wrong. I did not need it for the move.
-- The Cloudflare token and project. I have no access to Cloudflare, so the new step has not run.
-- `federal-github-activity.netlify.app` still answers with a redirect. It is a separate Netlify site. Delete it in Netlify if you don't want it.
+`deploy/_headers` sets a five-minute cache on `/data/*` so a refreshed data file shows up quickly.
