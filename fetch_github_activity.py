@@ -134,6 +134,28 @@ def make_github_request(url, headers, params=None, max_retries=3):
     
     return None
 
+def get_all_pages(url, headers, params=None, max_pages=20, stop=None):
+    """Fetch a list endpoint following Link rel=next. Returns (first_response, items).
+
+    A single per_page=100 request silently caps any repo at 100 commits/PRs.
+    `stop(items_on_page)` returning True ends paging early (PRs are newest-first)."""
+    response = make_github_request(url, headers, params=params)
+    if response is None or response.status_code != 200:
+        return response, []
+    items = list(response.json())
+    page = response
+    for _ in range(max_pages - 1):
+        if stop and stop(page.json()):
+            break
+        next_url = page.links.get('next', {}).get('url')
+        if not next_url:
+            break
+        page = make_github_request(next_url, headers)
+        if page is None or page.status_code != 200:
+            break
+        items.extend(page.json())
+    return response, items
+
 def get_org_activity(org_name, days_back=30):
     """Get activity for a single organization over the last N days"""
     headers = get_github_headers()
@@ -203,14 +225,14 @@ def get_org_activity(org_name, days_back=30):
             # Get commits for this repo
             commits_url = f"https://api.github.com/repos/{org_name}/{repo_name}/commits"
             try:
-                commits_response = make_github_request(
+                commits_response, all_commits = get_all_pages(
                     commits_url, 
                     headers, 
                     params={'since': since_iso, 'per_page': 100}
                 )
                 
                 if commits_response and commits_response.status_code == 200:
-                    commits = commits_response.json()
+                    commits = all_commits
                     repo_commits = len(commits)
                     activity['total_commits'] += repo_commits
                     
@@ -225,7 +247,7 @@ def get_org_activity(org_name, days_back=30):
                 
                 # Count commits by day and store commit info (only if we have commits)
                 if commits_response and commits_response.status_code == 200:
-                    commits = commits_response.json()
+                    commits = all_commits
                     for commit in commits:
                         commit_date = commit['commit']['author']['date'][:10]  # YYYY-MM-DD
                         if commit_date in activity['daily_activity']:
@@ -256,14 +278,15 @@ def get_org_activity(org_name, days_back=30):
             # Get PRs for this repo
             prs_url = f"https://api.github.com/repos/{org_name}/{repo_name}/pulls"
             try:
-                prs_response = make_github_request(
+                # /pulls is newest-created first, so stop once a page reaches PRs older than the window
+                prs_response, all_prs = get_all_pages(
                     prs_url,
                     headers,
-                    params={'state': 'all', 'per_page': 100}
+                    params={'state': 'all', 'per_page': 100},
+                    stop=lambda page: bool(page) and datetime.strptime(page[-1]['created_at'][:10], '%Y-%m-%d') < since_date
                 )
                 
                 if prs_response and prs_response.status_code == 200:
-                    all_prs = prs_response.json()
                     
                     # Filter PRs by date (GitHub API since param doesn't work properly for PRs)
                     recent_prs = []
