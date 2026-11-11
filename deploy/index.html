@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Federal Agency Github Activity Tracker</title>
+    <meta name="description" content="Tracking public GitHub commits to default branches and pull request creation for federal agencies over the last 30 days. Each square represents one day.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Federal Agency Github Activity">
+    <meta property="og:description" content="Tracking public GitHub commits to default branches and pull request creation for federal agencies over the last 30 days.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d1117'/%3E%3Crect x='6' y='6' width='9' height='9' rx='2' fill='%2326a641'/%3E%3Crect x='17' y='6' width='9' height='9' rx='2' fill='%23006d32'/%3E%3Crect x='6' y='17' width='9' height='9' rx='2' fill='%2339d353'/%3E%3Crect x='17' y='17' width='9' height='9' rx='2' fill='%230e4429'/%3E%3C/svg%3E">
     <style>
         * {
             margin: 0;
@@ -340,7 +345,7 @@
             .active-repos-cell,
             .repos-cell {
                 width: 60px;
-                font-size: 10px;
+                font-size: 12px;
             }
         }
 
@@ -406,7 +411,7 @@
             }
             
             th {
-                font-size: 11px;
+                font-size: 12px;
                 padding: 8px 4px;
             }
             
@@ -450,26 +455,38 @@
             }
             
             th {
-                font-size: 10px;
-                padding: 6px 2px;
-            }
-            
-            td {
                 font-size: 11px;
                 padding: 6px 2px;
             }
             
+            td {
+                font-size: 12px;
+                padding: 6px 2px;
+            }
+            
+            .stat-badge {
+                padding: 2px 4px;
+            }
+            .heatmap-cell {
+                min-width: 0;
+                width: 64px;
+            }
+            .heatmap {
+                width: auto;
+            }
+            
             
             .agency-name-cell {
-                width: 120px;
+                width: 96px;
+                min-width: 0;
             }
             
             .commits-cell,
             .prs-cell,
             .active-repos-cell,
             .repos-cell {
-                width: 40px;
-                font-size: 9px;
+                width: 44px !important;
+                font-size: 12px;
             }
         }
         }
@@ -635,7 +652,7 @@
             
             const totalActivity = (agency.commits || 0) + (agency.prs || 0);
             const lastActivityText = agency.last_activity && agency.last_activity_days !== null
-                ? `${agency.last_activity_days} days ago`
+                ? `${agency.last_activity_days} ${agency.last_activity_days === 1 ? 'day' : 'days'} ago`
                 : '>30 days';
 
             const githubUrl = agency.exists ? `https://github.com/${agency.org_name}` : '#';
@@ -701,8 +718,8 @@
             row.innerHTML = `
                 <td class="agency-name-cell">
                     ${agency.exists ? 
-                        `<a href="${githubUrl}" target="_blank" class="agency-name">${displayName}</a>` :
-                        `<span style="color: #8b949e;">${displayName}</span>`
+                        `<a href="${githubUrl}" target="_blank" class="agency-name" title="${agency.name}">${displayName}</a>` :
+                        `<span style="color: #8b949e;" title="${agency.name}">${displayName}</span>`
                     }
                 </td>
                 <td class="commits-cell" style="text-align: center; width: 100px;">
